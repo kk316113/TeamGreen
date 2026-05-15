@@ -1,0 +1,2935 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AutoGrader 项目（Beta）B4 模块 API",
+    "description": "AutoGrader 项目 B4 数据中枢模块的 OpenAPI 文档。覆盖用户鉴权、学生与班级管理、题目与作业管理、题目测试数据管理、代码提交、评测结果回传、成绩报表与知识巩固预留接口。",
+    "version": "1.1.0",
+    "contact": {
+      "name": "第七组"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "本地开发环境"
+    },
+    {
+      "url": "https://api.example.com",
+      "description": "生产环境占位地址"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "认证与鉴权接口"
+    },
+    {
+      "name": "Students",
+      "description": "学生与班级管理接口"
+    },
+    {
+      "name": "Problems",
+      "description": "题目与作业管理接口"
+    },
+    {
+      "name": "Assignments",
+      "description": "作业管理接口"
+    },
+    {
+      "name": "Submissions",
+      "description": "代码提交接口"
+    },
+    {
+      "name": "Judge",
+      "description": "评测任务与结果回传接口"
+    },
+    {
+      "name": "Scores",
+      "description": "成绩与报表接口"
+    },
+    {
+      "name": "Knowledge",
+      "description": "知识巩固预留接口"
+    }
+  ],
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "用户登录",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoginResponseData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "校验 Token",
+        "operationId": "verifyToken",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "integer",
+                          "example": 101
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "student"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "获取当前用户信息",
+        "operationId": "getCurrentUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UserProfile"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/students/import": {
+      "post": {
+        "tags": [
+          "Students"
+        ],
+        "summary": "批量导入学生名单",
+        "operationId": "importStudents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentImportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentImportResponseData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/students": {
+      "get": {
+        "tags": [
+          "Students"
+        ],
+        "summary": "查询学生列表",
+        "operationId": "listStudents",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "class_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/StudentPageData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/students/{student_id}": {
+      "get": {
+        "tags": [
+          "Students"
+        ],
+        "summary": "查询学生详情",
+        "operationId": "getStudent",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Student"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/problems": {
+      "post": {
+        "tags": [
+          "Problems"
+        ],
+        "summary": "创建题目",
+        "operationId": "createProblem",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Problem"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Problems"
+        ],
+        "summary": "查询题目列表",
+        "operationId": "listProblems",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "easy",
+                "medium",
+                "hard"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ProblemPageData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/problems/{problem_id}": {
+      "get": {
+        "tags": [
+          "Problems"
+        ],
+        "summary": "查询题目详情",
+        "operationId": "getProblem",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Problem"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/assignments": {
+      "post": {
+        "tags": [
+          "Assignments"
+        ],
+        "summary": "创建作业",
+        "operationId": "createAssignment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Assignment"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Assignments"
+        ],
+        "summary": "查询作业列表",
+        "operationId": "listAssignments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "class_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "student_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/AssignmentPageData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/submissions": {
+      "post": {
+        "tags": [
+          "Submissions"
+        ],
+        "summary": "学生提交代码",
+        "operationId": "createSubmission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmissionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Submission"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Submissions"
+        ],
+        "summary": "查询提交记录",
+        "operationId": "listSubmissions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "assignment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "problem_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "judging",
+                "finished",
+                "failed"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SubmissionPageData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/submissions/{submission_id}": {
+      "get": {
+        "tags": [
+          "Submissions"
+        ],
+        "summary": "查询提交详情",
+        "operationId": "getSubmission",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Submission"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/submissions/{submission_id}/status": {
+      "get": {
+        "tags": [
+          "Submissions"
+        ],
+        "summary": "查询提交状态",
+        "operationId": "getSubmissionStatus",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SubmissionStatusData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/judge/tasks/pending": {
+      "get": {
+        "tags": [
+          "Judge"
+        ],
+        "summary": "获取待评测任务",
+        "operationId": "listPendingJudgeTasks",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/JudgeTask"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/judge/results": {
+      "post": {
+        "tags": [
+          "Judge"
+        ],
+        "summary": "回传评测结果",
+        "operationId": "createJudgeResult",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JudgeResultCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "task_id": {
+                          "type": "integer",
+                          "example": 9001
+                        },
+                        "submission_id": {
+                          "type": "integer",
+                          "example": 10086
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "finished"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/judge/tasks/{task_id}/status": {
+      "patch": {
+        "tags": [
+          "Judge"
+        ],
+        "summary": "更新评测任务状态",
+        "operationId": "updateJudgeTaskStatus",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JudgeStatusUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "task_id": {
+                          "type": "integer",
+                          "example": 9001
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "judging"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/scores/me": {
+      "get": {
+        "tags": [
+          "Scores"
+        ],
+        "summary": "查询当前用户个人成绩",
+        "operationId": "getMyScores",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ScorePageData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/scores/class/{class_id}": {
+      "get": {
+        "tags": [
+          "Scores"
+        ],
+        "summary": "查询班级成绩列表",
+        "operationId": "listClassScores",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "class_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Page"
+          },
+          {
+            "$ref": "#/components/parameters/Size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ScorePageData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/reports/score-summary": {
+      "get": {
+        "tags": [
+          "Scores"
+        ],
+        "summary": "成绩统计报表",
+        "operationId": "getScoreSummary",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "class_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "assignment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ScoreSummaryData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/tags/{problem_id}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "查询题目知识点标签",
+        "operationId": "getProblemKnowledgeTags",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeTagsData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/profile/{student_id}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "查询学生知识薄弱项画像",
+        "operationId": "getKnowledgeProfile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeProfileData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/knowledge/recommend/{student_id}": {
+      "get": {
+        "tags": [
+          "Knowledge"
+        ],
+        "summary": "查询知识巩固建议",
+        "operationId": "getKnowledgeRecommend",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/KnowledgeRecommendData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/problems/{problem_id}/testcases/batch": {
+      "post": {
+        "tags": [
+          "Problems"
+        ],
+        "summary": "批量导入题目测试用例",
+        "operationId": "batchSaveProblemTestcases",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProblemTestcaseBatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "problem_id": {
+                          "type": "integer",
+                          "example": 5
+                        },
+                        "saved_count": {
+                          "type": "integer",
+                          "example": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/problems/{problem_id}/testcases": {
+      "get": {
+        "tags": [
+          "Problems"
+        ],
+        "summary": "查询题目测试用例",
+        "operationId": "listProblemTestcases",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "problem_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ProblemTestcaseListData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/api/v1/judge/tasks/{task_id}/testcases": {
+      "get": {
+        "tags": [
+          "Judge"
+        ],
+        "summary": "获取任务测试数据",
+        "operationId": "getJudgeTaskTestcases",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/JudgeTaskTestcasesData"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT Bearer Token"
+      }
+    },
+    "parameters": {
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "description": "页码，从 1 开始",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "Size": {
+        "name": "size",
+        "in": "query",
+        "description": "每页数量",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 10
+        }
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "nullable": true
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "20230001"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "123456"
+          }
+        }
+      },
+      "LoginResponseData": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "<jwt_token>"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "example": 7200
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "username": {
+            "type": "string",
+            "example": "20230001"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "teacher",
+              "student",
+              "service"
+            ],
+            "example": "student"
+          },
+          "real_name": {
+            "type": "string",
+            "example": "张三"
+          }
+        }
+      },
+      "StudentImportItem": {
+        "type": "object",
+        "required": [
+          "student_no",
+          "name"
+        ],
+        "properties": {
+          "student_no": {
+            "type": "string",
+            "example": "20230001"
+          },
+          "name": {
+            "type": "string",
+            "example": "张三"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "zhangsan@example.com"
+          }
+        }
+      },
+      "StudentImportRequest": {
+        "type": "object",
+        "required": [
+          "class_id",
+          "students"
+        ],
+        "properties": {
+          "class_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentImportItem"
+            }
+          }
+        }
+      },
+      "StudentImportResponseData": {
+        "type": "object",
+        "properties": {
+          "success_count": {
+            "type": "integer",
+            "example": 2
+          },
+          "fail_count": {
+            "type": "integer",
+            "example": 0
+          }
+        }
+      },
+      "Student": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "student_no": {
+            "type": "string",
+            "example": "20230001"
+          },
+          "name": {
+            "type": "string",
+            "example": "张三"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "zhangsan@example.com"
+          },
+          "class_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "StudentPageData": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 100
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "size": {
+            "type": "integer",
+            "example": 10
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Student"
+            }
+          }
+        }
+      },
+      "ProblemCreateRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "description",
+          "difficulty",
+          "time_limit_ms",
+          "memory_limit_mb"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "两数之和"
+          },
+          "description": {
+            "type": "string",
+            "example": "给定一个整数数组..."
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "example": "easy"
+          },
+          "time_limit_ms": {
+            "type": "integer",
+            "example": 1000
+          },
+          "memory_limit_mb": {
+            "type": "integer",
+            "example": 128
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "数组",
+              "哈希表"
+            ]
+          },
+          "sample_cases": {
+            "type": "array",
+            "description": "样例测试用例列表，仅用于题面展示",
+            "items": {
+              "$ref": "#/components/schemas/SampleCaseInput"
+            }
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "title": {
+            "type": "string",
+            "example": "两数之和"
+          },
+          "description": {
+            "type": "string",
+            "example": "给定一个整数数组..."
+          },
+          "difficulty": {
+            "type": "string",
+            "example": "easy"
+          },
+          "time_limit_ms": {
+            "type": "integer",
+            "example": 1000
+          },
+          "memory_limit_mb": {
+            "type": "integer",
+            "example": 128
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "数组",
+              "哈希表"
+            ]
+          },
+          "sample_cases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SampleCaseInput"
+            }
+          }
+        }
+      },
+      "ProblemPageData": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 30
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "size": {
+            "type": "integer",
+            "example": 10
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "AssignmentCreateRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "class_id",
+          "problem_ids",
+          "start_time",
+          "deadline"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "第一次编程作业"
+          },
+          "class_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "problem_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              5,
+              6
+            ]
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-08T08:00:00+08:00"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-15T23:59:59+08:00"
+          },
+          "max_submit_count": {
+            "type": "integer",
+            "default": 10,
+            "example": 10
+          }
+        }
+      },
+      "Assignment": {
+        "type": "object",
+        "properties": {
+          "assignment_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "title": {
+            "type": "string",
+            "example": "第一次编程作业"
+          },
+          "class_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "problem_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              5,
+              6
+            ]
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "max_submit_count": {
+            "type": "integer",
+            "example": 10
+          }
+        }
+      },
+      "AssignmentPageData": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 10
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "size": {
+            "type": "integer",
+            "example": 10
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Assignment"
+            }
+          }
+        }
+      },
+      "SubmissionCreateRequest": {
+        "type": "object",
+        "required": [
+          "assignment_id",
+          "problem_id",
+          "language"
+        ],
+        "properties": {
+          "assignment_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "python",
+              "cpp",
+              "java",
+              "c"
+            ],
+            "example": "python"
+          },
+          "code": {
+            "type": "string",
+            "example": "print('hello world')"
+          },
+          "file_url": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "code"
+            ]
+          },
+          {
+            "required": [
+              "file_url"
+            ]
+          }
+        ]
+      },
+      "Submission": {
+        "type": "object",
+        "properties": {
+          "submission_id": {
+            "type": "integer",
+            "example": 10086
+          },
+          "assignment_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "language": {
+            "type": "string",
+            "example": "python"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "judging",
+              "finished",
+              "failed"
+            ],
+            "example": "pending"
+          },
+          "score": {
+            "type": "number",
+            "nullable": true,
+            "example": null
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-08T10:00:00+08:00"
+          }
+        }
+      },
+      "SubmissionPageData": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 50
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "size": {
+            "type": "integer",
+            "example": 10
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Submission"
+            }
+          }
+        }
+      },
+      "SubmissionStatusData": {
+        "type": "object",
+        "properties": {
+          "submission_id": {
+            "type": "integer",
+            "example": 10086
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "judging",
+              "finished",
+              "failed"
+            ],
+            "example": "judging"
+          }
+        }
+      },
+      "JudgeTask": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "integer",
+            "example": 9001
+          },
+          "submission_id": {
+            "type": "integer",
+            "example": 10086
+          },
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "language": {
+            "type": "string",
+            "example": "python"
+          },
+          "code": {
+            "type": "string",
+            "example": "print('hello world')"
+          },
+          "testcase_count": {
+            "type": "integer",
+            "example": 10
+          },
+          "testcase_version": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "JudgeResultCreateRequest": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "submission_id",
+          "status"
+        ],
+        "properties": {
+          "task_id": {
+            "type": "integer",
+            "example": 9001
+          },
+          "submission_id": {
+            "type": "integer",
+            "example": 10086
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "finished",
+              "failed"
+            ],
+            "example": "finished"
+          },
+          "score": {
+            "type": "number",
+            "example": 90
+          },
+          "runtime_ms": {
+            "type": "integer",
+            "example": 120
+          },
+          "memory_kb": {
+            "type": "integer",
+            "example": 2048
+          },
+          "result_detail": {
+            "type": "object",
+            "properties": {
+              "passed_count": {
+                "type": "integer",
+                "example": 9
+              },
+              "total_count": {
+                "type": "integer",
+                "example": 10
+              }
+            }
+          }
+        }
+      },
+      "JudgeStatusUpdateRequest": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "judging",
+              "finished",
+              "failed"
+            ],
+            "example": "judging"
+          },
+          "message": {
+            "type": "string",
+            "example": "任务已开始评测"
+          }
+        }
+      },
+      "ScoreRecord": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "assignment_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "score": {
+            "type": "number",
+            "example": 90
+          },
+          "rank": {
+            "type": "integer",
+            "nullable": true,
+            "example": 3
+          }
+        }
+      },
+      "ScorePageData": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 50
+          },
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "size": {
+            "type": "integer",
+            "example": 10
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScoreRecord"
+            }
+          }
+        }
+      },
+      "ScoreSummaryData": {
+        "type": "object",
+        "properties": {
+          "class_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "avg_score": {
+            "type": "number",
+            "example": 78.5
+          },
+          "max_score": {
+            "type": "number",
+            "example": 98
+          },
+          "min_score": {
+            "type": "number",
+            "example": 40
+          },
+          "pass_rate": {
+            "type": "number",
+            "example": 0.86
+          },
+          "distribution": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "range": {
+                  "type": "string",
+                  "example": "80-100"
+                },
+                "count": {
+                  "type": "integer",
+                  "example": 26
+                }
+              }
+            }
+          }
+        }
+      },
+      "KnowledgeTagsData": {
+        "type": "object",
+        "properties": {
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "动态规划",
+              "数组"
+            ]
+          }
+        }
+      },
+      "KnowledgeProfileData": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "weak_points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tag": {
+                  "type": "string",
+                  "example": "动态规划"
+                },
+                "wrong_count": {
+                  "type": "integer",
+                  "example": 5
+                }
+              }
+            }
+          }
+        }
+      },
+      "KnowledgeRecommendData": {
+        "type": "object",
+        "properties": {
+          "student_id": {
+            "type": "integer",
+            "example": 101
+          },
+          "recommend_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "动态规划",
+              "图论"
+            ]
+          },
+          "recommend_problem_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              12,
+              18,
+              23
+            ]
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 40001
+          },
+          "message": {
+            "type": "string",
+            "example": "参数错误"
+          },
+          "data": {
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "SampleCaseInput": {
+        "type": "object",
+        "required": [
+          "input_data",
+          "expected_output"
+        ],
+        "properties": {
+          "input_data": {
+            "type": "string",
+            "example": "1 2"
+          },
+          "expected_output": {
+            "type": "string",
+            "example": "3"
+          }
+        }
+      },
+      "ProblemTestcase": {
+        "type": "object",
+        "properties": {
+          "case_no": {
+            "type": "integer",
+            "example": 1
+          },
+          "input_data": {
+            "type": "string",
+            "example": "1 2"
+          },
+          "expected_output": {
+            "type": "string",
+            "example": "3"
+          },
+          "is_sample": {
+            "type": "boolean",
+            "example": true
+          },
+          "is_hidden": {
+            "type": "boolean",
+            "example": false
+          },
+          "score_weight": {
+            "type": "number",
+            "example": 10
+          }
+        }
+      },
+      "ProblemTestcaseBatchRequest": {
+        "type": "object",
+        "required": [
+          "testcases"
+        ],
+        "properties": {
+          "testcases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemTestcase"
+            }
+          }
+        }
+      },
+      "ProblemTestcaseListData": {
+        "type": "object",
+        "properties": {
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "testcases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProblemTestcase"
+            }
+          }
+        }
+      },
+      "JudgeTaskTestcasesData": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "integer",
+            "example": 9001
+          },
+          "problem_id": {
+            "type": "integer",
+            "example": 5
+          },
+          "testcases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "case_no": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "input_data": {
+                  "type": "string",
+                  "example": "1 2"
+                },
+                "expected_output": {
+                  "type": "string",
+                  "example": "3"
+                },
+                "score_weight": {
+                  "type": "number",
+                  "example": 10
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "请求参数错误",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "未认证或 Token 无效",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "无访问权限",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "资源不存在",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "服务器内部错误",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}
